@@ -100,7 +100,7 @@ public class ExternalPanelController extends PanelController {
         }
         pathField.setText(path);
         filesTable.getItems().clear();
-        System.out.println("path in update(): " + path + ".");
+//        System.out.println("path in update(): " + path + ".");
         filesTable.getItems().addAll(controller.getList(path));
         filesTable.sort();
     }
