@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class ExternalPanelController extends PanelController {
 
     Controller controller = new Controller();
+    String rootFolder;
 
     @FXML
     Label label;
@@ -34,11 +35,11 @@ public class ExternalPanelController extends PanelController {
         fileTypeColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getType().getName()));
         fileTypeColumn.setPrefWidth(24);
 
-        TableColumn<FileInfo, String> filenameColumn = new TableColumn<>("Имя");
+        TableColumn<FileInfo, String> filenameColumn = new TableColumn<>("Name");
         filenameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilename()));
         filenameColumn.setPrefWidth(240);
 
-        TableColumn<FileInfo, Long> fileSizeColumn = new TableColumn<>("Размер");
+        TableColumn<FileInfo, Long> fileSizeColumn = new TableColumn<>("Size");
         fileSizeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
         fileSizeColumn.setCellFactory(column -> {
             return new TableCell<FileInfo, Long>() {
@@ -61,7 +62,7 @@ public class ExternalPanelController extends PanelController {
         fileSizeColumn.setPrefWidth(120);
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        TableColumn<FileInfo, String> fileDateColumn = new TableColumn<>("Дата изменения");
+        TableColumn<FileInfo, String> fileDateColumn = new TableColumn<>("Date of change");
         fileDateColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getLastModified().format(dtf)));
         fileDateColumn.setPrefWidth(120);
 
@@ -88,19 +89,13 @@ public class ExternalPanelController extends PanelController {
 
     }
 
-//    public void updateTable() {
-//        Path path = Paths.get(pathField.getText());
-//        updateList(path, controller.getList("info" + path.toString()) );
-//    }
-
-
     public void updateTable(String path) {
         if (label.getText().equals("NA")) {
-            setLabel(path);
+            setLabel(path.replace("server\\", "USER: ") + " ");
+            rootFolder = path;
         }
         pathField.setText(path);
         filesTable.getItems().clear();
-//        System.out.println("path in update(): " + path + ".");
         filesTable.getItems().addAll(controller.getList(path));
         filesTable.sort();
     }
@@ -113,7 +108,7 @@ public class ExternalPanelController extends PanelController {
 
     @Override
     public void btnPathUpAction(ActionEvent actionEvent) {
-        if (!label.getText().equals(pathField.getText())) {
+        if (!rootFolder.equals(pathField.getText())) {
             Path path = Paths.get(pathField.getText()).getParent();
             updateTable(path.toString());
         } else {

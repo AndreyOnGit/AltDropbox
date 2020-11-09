@@ -10,7 +10,7 @@
       fx:controller="client.Controller">
 
     <HBox VBox.vgrow="ALWAYS">
-        <Label fx:id="logLabel" text="Your Log" />
+        <Label fx:id="logLabel" text="Your Log"/>
         <TextField fx:id="logField" editable="true" HBox.hgrow="ALWAYS"/>
     </HBox>
 
@@ -20,8 +20,7 @@
     </HBox>
 
 
-    <Button maxWidth="Infinity" focusTraversable="false" text="Log in" HBox.hgrow="ALWAYS"
+    <Button fx:id="btmAuth" focusTraversable="false" text="Log in" HBox.hgrow="ALWAYS"
             onAction="#authBtnAction"/>
-
 
 </VBox>

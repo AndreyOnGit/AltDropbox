@@ -17,6 +17,7 @@ public class Server {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Something happened in server.class.");
         }
     }
 

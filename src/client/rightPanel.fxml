@@ -10,7 +10,7 @@
     <HBox>
         <Label fx:id="label" text="NA"  />
         <TextField fx:id="pathField" editable="false" HBox.hgrow="ALWAYS"/>
-        <Button text="Вверх" onAction="#btnPathUpAction"/>
+        <Button text="Up" onAction="#btnPathUpAction"/>
     </HBox>
     <TableView fx:id="filesTable" VBox.vgrow="ALWAYS"/>
 
