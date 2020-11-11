@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="center" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.2-internal"
+      fx:controller="client.CreatorFolderController">
+
+    <HBox VBox.vgrow="ALWAYS">
+        <Label text="Folder name " HBox.hgrow="ALWAYS"/>
+        <TextField fx:id="fieldFolderName" editable="true" HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <Button fx:id="btnRename" focusTraversable="false" text="Create folder" HBox.hgrow="ALWAYS"
+            onAction="#btnCreateFolder"/>
+
+</VBox>
