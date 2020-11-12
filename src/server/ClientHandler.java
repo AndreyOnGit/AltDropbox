@@ -41,6 +41,7 @@ public class ClientHandler implements Runnable {
                 // получение информации для обновления таблицы
                 if (command.startsWith("info")) {
                     String path = command.replace("info", "");
+                    System.out.println("path :" + path + ".");
                     File file = new File(path);
                     if (file.exists()) {
                         out.writeObject(makeFileInfo(Paths.get(path)));
@@ -101,10 +102,8 @@ public class ClientHandler implements Runnable {
 
                 if (command.equals("rename")) {
                     String path = in.readUTF();
-//                    System.out.println("path: " + path);
                     File file = new File(path);
                     String newPath = file.getParent() + "/" + in.readUTF();
-//                    System.out.println("newPath: " + newPath);
                     File newFile = new File(newPath);
                     file.renameTo(newFile);
                 }
@@ -157,6 +156,35 @@ public class ClientHandler implements Runnable {
                 } else {
                     out.writeUTF("No log");
                     out.flush();
+                }
+            }
+            if (message.startsWith("singIn")) {
+                System.out.println("In Blog with registration");
+                String[] msg = message.split(" ");
+                ClientBase bd = new ClientBase();
+                UserInfo possibleClient = bd.getRecord(msg[1]);
+                if (possibleClient != null) {
+                    if (possibleClient.getLogin().equals(msg[1]) && possibleClient.getPassword().equals(msg[2])) {
+                        out.writeUTF("occupied");
+                        out.flush();
+                    }
+                } else {
+                    System.out.println("in blog without user");
+
+                    Boolean isUserAdded = new ClientBase().addUser(msg[1], msg[2]);
+                    if (isUserAdded) {
+                        System.out.println("User is added.");
+                        user = new UserInfo(0, msg[1], msg[2]);
+                        System.out.println(String.format("User (port %s, log %s) logged-in.", socket.getPort(), msg[1]));
+                        out.writeUTF("OK");
+                        out.flush();
+                        File rootNewDir = new File("server/" + msg[1]);
+                        rootNewDir.mkdir();
+                        break;
+                    } else {
+                        out.writeUTF("repeat");
+                        out.flush();
+                    }
                 }
             }
         }

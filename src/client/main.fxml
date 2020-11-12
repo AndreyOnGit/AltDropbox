@@ -10,7 +10,7 @@
         <Menu text="File">
             <MenuItem text="Connect" onAction="#btnConnect"/>
             <MenuItem text="Disconnect" onAction="#btnDisconnect"/>
-            <MenuItem text="New account (todo)" />
+            <MenuItem text="New account" onAction="#btnSignIn" />
             <MenuItem text="Exit" onAction="#btnExitAction"/>
         </Menu>
         <Menu text="Theme">
