@@ -1,32 +1,32 @@
 package client;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
-public class Controller implements Initializable {
+public class Controller {
     @FXML
     VBox leftPanel, rightPanel;
 
@@ -38,10 +38,10 @@ public class Controller implements Initializable {
 
     private static ObjectOutputStream out;
     private static ObjectInputStream in;
-    protected static InnerPanelController leftPC;
-    protected static ExternalPanelController rightPC;
+    private static InnerPanelController leftPC;
+    private static ExternalPanelController rightPC;
     private static Socket socket;
-    private static Stage logIn, newName, newFolder, newUser;
+    private static Stage logIn, newName;
     private static String panel = "none";
 
 
@@ -56,8 +56,10 @@ public class Controller implements Initializable {
         Platform.exit();
     }
 
-    public void connect() {
+    public void btnConnect(ActionEvent actionEvent) {
+        rightPC = (ExternalPanelController) rightPanel.getProperties().get("ctrl");
         try {
+            throwFormAuth();
             socket = new Socket("localhost", 8189);
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
@@ -65,11 +67,6 @@ public class Controller implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to connect to server", ButtonType.OK);
             alert.showAndWait();
         }
-    }
-
-    public void btnConnect(ActionEvent actionEvent) {
-        connect();
-        throwAuthForm();
     }
 
     public void btnDisconnect(ActionEvent actionEvent) {
@@ -83,29 +80,46 @@ public class Controller implements Initializable {
         rightPC.setLabel("NA");
         rightPC.pathField.clear();
         rightPC.filesTable.getItems().clear();
-        File file = new File("./authFile.txt");
-        file.delete();
     }
 
-    public void throwAuthForm() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("authForm.fxml"));
-        Parent root = null;
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        AuthController authController = loader.getController();
-        authController.setInfo(this);
+    public void throwFormAuth() {
         logIn = new Stage();
-        logIn.setScene(new Scene(root));
         logIn.setTitle("Log in");
+        try {
+            logIn.setScene(new Scene(FXMLLoader.load(getClass().getResource("form.fxml")), 200, 100));
+        } catch (IOException e) {
+            System.out.println("Something is wrong");
+        }
         logIn.show();
     }
 
+    public void authBtnAction() {
+        String log = logField.getText();
+        String pass = passField.getText();
+        String rootFolder = null;
+        try {
+            out.writeUTF("auth " + log + " " + pass);
+            out.flush();
+//            System.out.println(" out.writeUTF: " + "auth " + log + " " + pass);
+            rootFolder = in.readUTF();
+//            System.out.println("rootFolder: " + rootFolder);
+        } catch (IOException e) {
+            System.out.println("Something happend in method authBtnAction.");
+        }
+        rightPC.updateTable(rootFolder);
+        logIn.close();
+    }
+
+
     public List<FileInfo> getList(String path) {
         String command = "info" + path;
-        send(command);
+        try {
+            out.writeUTF(command);
+            out.flush();
+        } catch (IOException | NullPointerException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Some communication problems.", ButtonType.OK);
+            alert.showAndWait();
+        }
         List<FileInfo> list;
         try {
             list = (List<FileInfo>) in.readObject();
@@ -118,6 +132,8 @@ public class Controller implements Initializable {
     }
 
     public void copyBtnAction(ActionEvent actionEvent) {
+        leftPC = (InnerPanelController) leftPanel.getProperties().get("ctrl");
+
         if (leftPC.getSelectedFilename() == null && rightPC.getSelectedFilename() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Ни один файл не был выбран", ButtonType.OK);
             alert.showAndWait();
@@ -126,9 +142,12 @@ public class Controller implements Initializable {
         //копирования с клиента на сервер
         if (leftPC.getSelectedFilename() != null) {
             try {
-                send("upload");
+                out.writeUTF("upload");
+                out.flush();
                 Path path = Paths.get(rightPC.pathField.getText() + "/" + leftPC.getSelectedFilename());
-                send(path.toString());
+//                System.out.println(path.toString());
+                out.writeUTF(path.toString());
+                out.flush();
                 File file = new File(leftPC.getCurrentPath(), leftPC.getSelectedFilename());
                 long length = file.length();
                 out.writeLong(length);
@@ -140,6 +159,10 @@ public class Controller implements Initializable {
                 }
                 fileBytes.close();
                 out.flush();
+//                System.out.println("before readUTF");
+//                String msg = in.readUTF();
+//                System.out.println(msg);
+//                System.out.println("After readUTF");
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, in.readUTF(), ButtonType.OK);
                 alert.showAndWait();
             } catch (IOException e) {
@@ -152,14 +175,21 @@ public class Controller implements Initializable {
         //todo отработать случай уже существования файла
         //todo отработать случай копирования директории
         if (rightPC.getSelectedFilename() != null) {
+//            System.out.println("in needed IF block");
             try {
-                send("download");
-                send(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
+                out.writeUTF("download");
+//                System.out.println("out.write command: OK");
+                out.flush();
+                out.writeUTF(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
+//                System.out.println("out.write path: " + rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
+                out.flush();
                 File file = new File(leftPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
+//                System.out.println("filename: " + leftPC.pathField.getText() + "/" +  rightPC.getSelectedFilename());
                 if (!file.exists()) {
                     file.createNewFile();
                 }
                 long size = in.readLong();
+//                System.out.println("size: " + size);
                 FileOutputStream fos = new FileOutputStream(file);
                 byte[] buffer = new byte[256];
                 for (int i = 0; i < (size + 255) / 256; i++) {
@@ -167,9 +197,11 @@ public class Controller implements Initializable {
                     fos.write(buffer, 0, read);
                 }
                 fos.close();
+//                System.out.println("fos.close()");
             } catch (Exception e) {
                 e.printStackTrace();
             }
+//            System.out.println("path for update: " + Paths.get(leftPC.pathField.getText()));
             leftPC.updateLeftList(Paths.get(leftPC.pathField.getText()));
         }
     }
@@ -191,8 +223,14 @@ public class Controller implements Initializable {
         }
         //удаление на сервере
         if (rightPC.getSelectedFilename() != null) {
-            send("delete");
-            send(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
+            try {
+                out.writeUTF("delete");
+                out.flush();
+                out.writeUTF(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             rightPC.updateTable(rightPC.pathField.getText());
         }
     }
@@ -200,167 +238,69 @@ public class Controller implements Initializable {
     public void btnRenameAction(ActionEvent actionEvent) {
         //todo сделать выброс сообщения о наличие файла с тем же именем в папке
         //todo сделать проверку на расширение, переименование без изменения расширения
+        leftPC = (InnerPanelController) leftPanel.getProperties().get("ctrl");
         if (leftPC.getSelectedFilename() == null && rightPC.getSelectedFilename() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "No file selected.", ButtonType.OK);
             alert.showAndWait();
             return;
         }
+        //файл у клиента
         if (leftPC.getSelectedFilename() != null) {
-            throwRenameForm("left", leftPC.getSelectedFilename());
-        }
-        if (rightPC.getSelectedFilename() != null) {
-            send("rename");
-            send(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
-            throwRenameForm("right", rightPC.getSelectedFilename());
-        }
-    }
-
-    public void closeRenameForm() {
-        newName.close();
-    }
-
-    private void throwRenameForm(String panel, String oldName) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("newName.fxml"));
-        Parent root = null;
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        RenamingController renamingController = loader.getController();
-        renamingController.setInfo(this, panel, oldName);
-        newName = new Stage();
-        newName.setScene(new Scene(root));
-        newName.setTitle("Rename file: " + oldName);
-        newName.show();
-    }
-
-
-    public void btnCreateFolderAction(ActionEvent actionEvent) {
-        leftPC = (InnerPanelController) leftPanel.getProperties().get("ctrl");
-        rightPC = (ExternalPanelController) rightPanel.getProperties().get("ctrl");
-        if (!leftPC.filesTable.isFocused() && !rightPC.filesTable.isFocused()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "No file table (right or left) selected.", ButtonType.OK);
-            alert.showAndWait();
-            System.out.println("!leftPC.filesTable.isManaged() && !rightPC.filesTable.isManaged()");
-            return;
-        }
-        String path = "";
-        if (rightPC.filesTable.isFocused()) {
-            path = rightPC.pathField.getText();
-            panel = "right";
-        }
-        if (leftPC.filesTable.isFocused()) {
-            path = leftPC.pathField.getText();
+            File file = new File(leftPC.getCurrentPath(), leftPC.getSelectedFilename());
             panel = "left";
+            try {
+                throwFormRename(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("newFolder.fxml"));
-        try {
-            Parent root = loader.load();
-            CreatorFolderController creatorFolderController = loader.getController();
-            creatorFolderController.setInfo(path, this);
-            newFolder = new Stage();
-            newFolder.setScene(new Scene(root));
-            newFolder.setTitle("Creat new folder");
-            newFolder.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        //файл на сервере
+        if (rightPC.getSelectedFilename() != null) {
+            try {
+                out.writeUTF("rename");
+                out.flush();
+                out.writeUTF(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
+                out.flush();
+                File file = new File(rightPC.getSelectedFilename());
+                panel = "right";
+                throwFormRename(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void createFolder(String path) {
-        newFolder.close();
+    private void throwFormRename(File file) throws IOException {
+        newName = new Stage();
+        newName.setTitle("Rename file: "+ file.getName());
+        newName.setScene(new Scene(FXMLLoader.load(getClass().getResource("newName.fxml")), 300, 50));
+        newName.initModality(Modality.WINDOW_MODAL);
+        newName.show();
+        //todo сделать ввод исходного имени файла в TextField
+    }
+
+    public void btnChangeNameAction(ActionEvent actionEvent) {
         if (panel.equals("left")) {
-            File file = new File(path);
-            file.mkdir();
+            File file = new File(leftPC.getCurrentPath(), newName.getTitle().replace("Rename file: ",""));
+            File newFile = new File(leftPC.getCurrentPath(), fieldName.getText());
+            //todo сделать проверку на некорректный ввод
+            file.renameTo(newFile);
+            newName.close();
             leftPC.updateLeftList(Paths.get(leftPC.getCurrentPath()));
         }
         if (panel.equals("right")) {
-            send("make");
-            send(path);
+            //todo сделать проверку на некорректный ввод
+            try {
+                out.writeUTF(fieldName.getText());
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            newName.close();
             rightPC.updateTable(rightPC.pathField.getText());
         }
         panel = "";
     }
 
-    public void btnSignIn() {
-        connect();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("singignIn.fxml"));
-        try {
-            Parent root = loader.load();
-            SingingInController singingInController = loader.getController();
-            singingInController.setInfo(this);
-            newUser = new Stage();
-            newUser.setScene(new Scene(root));
-            newUser.setTitle("Sing in");
-            newUser.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void send(String msg) {
-        try {
-            out.writeUTF(msg);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String get() {
-        try {
-            return in.readUTF();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void compliteAuth() {
-        rightPC = (ExternalPanelController) rightPanel.getProperties().get("ctrl");
-        leftPC = (InnerPanelController) leftPanel.getProperties().get("ctrl");
-        String rootFolder = "";
-        try {
-            rootFolder = in.readUTF();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        rightPC.updateTable(rootFolder);
-        try {
-            newUser.close();
-        } catch (RuntimeException e) {
-        }
-        try {
-            logIn.close();
-        } catch (RuntimeException e) {
-        }
-    }
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        File file = new File("./authFile.txt");
-        if (file.exists()) {
-            connect();
-            String logAndPass = "";
-            try {
-                logAndPass = new String(Files.readAllBytes(Paths.get(file.getPath())));
-                System.out.println("logAndPass: " + logAndPass);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String logPass[] = logAndPass.split(" ");
-            String log = logPass[0];
-            String pass = logPass[1];
-            send("auth " + log + " " + pass);
-            String answer = get();
-            if (!answer.equals("OK")) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Authorization failed. The data file may have been damaged.", ButtonType.OK);
-                alert.showAndWait();
-                return;
-            }
-            compliteAuth();
-        }
-    }
 }

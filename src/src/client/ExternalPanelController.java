@@ -5,29 +5,29 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Font;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class PanelController implements Initializable {
-    @FXML
-    TableView<FileInfo> filesTable;
+public class ExternalPanelController extends PanelController {
+
+    Controller controller = new Controller();
+    String rootFolder;
 
     @FXML
-    ComboBox<String> disksBox;
-
-    @FXML
-    TextField pathField;
+    Label label;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -69,19 +69,16 @@ public class PanelController implements Initializable {
         filesTable.getColumns().addAll(fileTypeColumn, filenameColumn, fileSizeColumn, fileDateColumn);
         filesTable.getSortOrder().add(fileTypeColumn);
 
-        disksBox.getItems().clear();
-        for (Path p : FileSystems.getDefault().getRootDirectories()) {
-            disksBox.getItems().add(p.toString());
-        }
-        disksBox.getSelectionModel().select(0);
 
         filesTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+
                 if (event.getClickCount() == 2) {
                     Path path = Paths.get(pathField.getText()).resolve(filesTable.getSelectionModel().getSelectedItem().getFilename());
-                    if (Files.isDirectory(path) && filesTable.getSelectionModel().getSelectedItem().getType().getName().equals("D")) {
-                        updateLeftList(path);
+//                    System.out.println(filesTable.getSelectionModel().getSelectedItem().getType().getName());
+                    if (filesTable.getSelectionModel().getSelectedItem().getType().getName().equals("D")) {
+                        updateTable(path.toString());
                     } else {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION, "It is not folder. The program does not have a file viewer.", ButtonType.OK);
                         alert.showAndWait();
@@ -90,42 +87,33 @@ public class PanelController implements Initializable {
             }
         });
 
-        updateLeftList(Paths.get("."));
     }
 
-    public void updateLeftList(Path path) {
-        try {
-            pathField.setText(path.normalize().toAbsolutePath().toString());
-            filesTable.getItems().clear();
-            filesTable.getItems().addAll(Files.list(path).map(FileInfo::new).collect(Collectors.toList()));
-            filesTable.sort();
-        } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.WARNING, "По какой-то причине не удалось обновить список файлов", ButtonType.OK);
+    public void updateTable(String path) {
+        if (label.getText().equals("NA")) {
+            setLabel(path.replace("server\\", "USER: ") + " ");
+            rootFolder = path;
+        }
+        pathField.setText(path);
+        filesTable.getItems().clear();
+        filesTable.getItems().addAll(controller.getList(path));
+        filesTable.sort();
+    }
+
+    public void setLabel(String path) {
+        label.setText(path);
+        label.setFont(new Font("Arial", 16));
+
+    }
+
+    @Override
+    public void btnPathUpAction(ActionEvent actionEvent) {
+        if (!rootFolder.equals(pathField.getText())) {
+            Path path = Paths.get(pathField.getText()).getParent();
+            updateTable(path.toString());
+        } else {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "You are in the root folder of your account.", ButtonType.OK);
             alert.showAndWait();
         }
     }
-
-    public void btnPathUpAction(ActionEvent actionEvent) {
-        Path upperPath = Paths.get(pathField.getText()).getParent();
-        if (upperPath != null) {
-            updateLeftList(upperPath);
-        }
-    }
-
-    public void selectDiskAction(ActionEvent actionEvent) {
-        ComboBox<String> element = (ComboBox<String>) actionEvent.getSource();
-        updateLeftList(Paths.get(element.getSelectionModel().getSelectedItem()));
-    }
-
-    public String getSelectedFilename() {
-        if (!filesTable.isFocused()) {
-            return null;
-        }
-        return filesTable.getSelectionModel().getSelectedItem().getFilename();
-    }
-
-    public String getCurrentPath() {
-        return pathField.getText();
-    }
 }
-

@@ -10,14 +10,13 @@
         <Menu text="File">
             <MenuItem text="Connect" onAction="#btnConnect"/>
             <MenuItem text="Disconnect" onAction="#btnDisconnect"/>
-            <MenuItem text="New account" onAction="#btnSignIn" />
+            <MenuItem text="New account" />
             <MenuItem text="Exit" onAction="#btnExitAction"/>
         </Menu>
         <Menu text="Theme">
-            <MenuItem text="(todo)"/>
         </Menu>
         <Menu text="Help">
-            <MenuItem text="About (todo)" />
+            <MenuItem text="About" />
         </Menu>
     </MenuBar>
 
@@ -31,7 +30,6 @@
         <Button maxWidth="Infinity" focusTraversable="false" text="Move file" HBox.hgrow="ALWAYS" onAction="#moveBtnAction"/>
         <Button maxWidth="Infinity" focusTraversable="false" text="Delete file" HBox.hgrow="ALWAYS" onAction="#deleteBtnAction"/>
         <Button maxWidth="Infinity" focusTraversable="false" text="Rename file" HBox.hgrow="ALWAYS" onAction="#btnRenameAction"/>
-        <Button maxWidth="Infinity" focusTraversable="false" text="Create new folder" HBox.hgrow="ALWAYS" onAction="#btnCreateFolderAction"/>
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>

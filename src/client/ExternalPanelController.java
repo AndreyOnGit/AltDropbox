@@ -76,7 +76,6 @@ public class ExternalPanelController extends PanelController {
 
                 if (event.getClickCount() == 2) {
                     Path path = Paths.get(pathField.getText()).resolve(filesTable.getSelectionModel().getSelectedItem().getFilename());
-//                    System.out.println(filesTable.getSelectionModel().getSelectedItem().getType().getName());
                     if (filesTable.getSelectionModel().getSelectedItem().getType().getName().equals("D")) {
                         updateTable(path.toString());
                     } else {

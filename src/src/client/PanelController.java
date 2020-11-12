@@ -80,11 +80,8 @@ public class PanelController implements Initializable {
             public void handle(MouseEvent event) {
                 if (event.getClickCount() == 2) {
                     Path path = Paths.get(pathField.getText()).resolve(filesTable.getSelectionModel().getSelectedItem().getFilename());
-                    if (Files.isDirectory(path) && filesTable.getSelectionModel().getSelectedItem().getType().getName().equals("D")) {
+                    if (Files.isDirectory(path)) {
                         updateLeftList(path);
-                    } else {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "It is not folder. The program does not have a file viewer.", ButtonType.OK);
-                        alert.showAndWait();
                     }
                 }
             }
@@ -128,4 +125,3 @@ public class PanelController implements Initializable {
         return pathField.getText();
     }
 }
-
