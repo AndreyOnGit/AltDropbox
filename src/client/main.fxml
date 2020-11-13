@@ -11,7 +11,7 @@
             <MenuItem text="Connect" onAction="#btnConnect"/>
             <MenuItem text="Disconnect" onAction="#btnDisconnect"/>
             <MenuItem text="New account" onAction="#btnSignIn" />
-            <MenuItem text="Exit" onAction="#btnExitAction"/>
+            <MenuItem text="Exit" onAction="#btnExit"/>
         </Menu>
         <Menu text="Theme">
             <MenuItem text="(todo)"/>
@@ -27,11 +27,11 @@
     </HBox>
 
     <HBox spacing="5">
-        <Button maxWidth="Infinity" focusTraversable="false" text="Copy file" HBox.hgrow="ALWAYS" onAction="#copyBtnAction"/>
-        <Button maxWidth="Infinity" focusTraversable="false" text="Move file" HBox.hgrow="ALWAYS" onAction="#moveBtnAction"/>
-        <Button maxWidth="Infinity" focusTraversable="false" text="Delete file" HBox.hgrow="ALWAYS" onAction="#deleteBtnAction"/>
-        <Button maxWidth="Infinity" focusTraversable="false" text="Rename file" HBox.hgrow="ALWAYS" onAction="#btnRenameAction"/>
-        <Button maxWidth="Infinity" focusTraversable="false" text="Create new folder" HBox.hgrow="ALWAYS" onAction="#btnCreateFolderAction"/>
+        <Button maxWidth="Infinity" focusTraversable="false" text="Copy file" HBox.hgrow="ALWAYS" onAction="#btnCopy"/>
+        <Button maxWidth="Infinity" focusTraversable="false" text="Move file" HBox.hgrow="ALWAYS" onAction="#btnMove"/>
+        <Button maxWidth="Infinity" focusTraversable="false" text="Delete file" HBox.hgrow="ALWAYS" onAction="#btnDelete"/>
+        <Button maxWidth="Infinity" focusTraversable="false" text="Rename file" HBox.hgrow="ALWAYS" onAction="#btnRename"/>
+        <Button maxWidth="Infinity" focusTraversable="false" text="Create new folder" HBox.hgrow="ALWAYS" onAction="#btnCreate"/>
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>

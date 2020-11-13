@@ -20,6 +20,8 @@ public class SingingInController {
     }
 
     public void btnSingIn(ActionEvent event){
+        controller.disconnect();
+        controller.connect();
         controller.send("singIn " + logField.getText() + " " + passField.getText());
         String answer = controller.get();
         if (answer.equals("occupied")) {

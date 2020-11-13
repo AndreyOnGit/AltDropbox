@@ -3,7 +3,9 @@ package server;
 import java.sql.*;
 import java.util.TimeZone;
 
-import com.mysql.jdbc.Driver;
+//import com.mysql.jdbc.Driver;
+import com.mysql.cj.jdbc.Driver;
+
 
 public class ClientBase {
     private Connection connection;
@@ -11,13 +13,14 @@ public class ClientBase {
     public ClientBase() {
 
         /*подключение драйвера*/
-/*        try {
-            Class.forName("com.mysql.jdbc.Driver");
+        try {
+//            Class.forName("com.mysql.jdbc.Driver");  // This is deprecated
+            Class.forName("com.mysql.cj.jdbc.Driver");
             System.out.println("Connection successful!");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Driver not found");
         }
-*/
+
         try {
             DriverManager.registerDriver(new Driver());
             connection = DriverManager.getConnection(
