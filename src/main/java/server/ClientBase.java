@@ -9,15 +9,14 @@ public class ClientBase {
     private Connection connection;
 
     public ClientBase() {
-        System.out.println("In ClientBase().");
 
         /*подключение драйвера*/
        try {
 //            Class.forName("com.mysql.jdbc.Driver");  // This is deprecated
             Class.forName("com.mysql.cj.jdbc.Driver");
-            System.out.println("Connection successful!");
+            System.out.println("Driver MySQL has been connected.");
         } catch (ClassNotFoundException e) {
-           System.out.println("Class.forName: false.");
+           System.out.println("Driver MySQL has not been connected.");
            throw new RuntimeException("Driver not found");
         }
 

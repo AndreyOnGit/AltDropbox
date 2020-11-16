@@ -32,13 +32,11 @@ public class ClientHandler implements Runnable {
         ) {
             doAuth(in, out);
             File rootDir = new File("server/" + user.getLogin() + "/");
-            System.out.println("rootDir: " + rootDir);
             out.writeUTF(rootDir.getPath());
             out.flush();
 
             while (true) {
                 String command = in.readUTF();
-                System.out.println("command: " + command);
 
                 // получение информации для обновления таблицы
                 if (command.startsWith("info")) {
@@ -140,7 +138,7 @@ public class ClientHandler implements Runnable {
     private void doAuth(ObjectInputStream in, ObjectOutputStream out) throws IOException {
         while (true) {
             String message = in.readUTF();
-            System.out.println("message: " + message);
+
             if (message.startsWith("auth")) {
                 String[] msg = message.split(" ");
                 ClientBase bd = new ClientBase();
@@ -162,11 +160,8 @@ public class ClientHandler implements Runnable {
                 }
             }
             if (message.startsWith("singIn")) {
-                System.out.println("In Blog with registration");
                 String[] msg = message.split(" ");
-                System.out.println("msg[1]: " + msg[1]);
                 ClientBase bd = new ClientBase();
-                System.out.println("new ClientBase(): OK");
                 UserInfo possibleClient = bd.getRecord(msg[1]);
                 if (possibleClient != null) {
                     if (possibleClient.getLogin().equals(msg[1]) && possibleClient.getPassword().equals(msg[2])) {
@@ -174,19 +169,15 @@ public class ClientHandler implements Runnable {
                         out.flush();
                     }
                 } else {
-                    System.out.println("in blog without user");
-
                     Boolean isUserAdded = new ClientBase().addUser(msg[1], msg[2]);
                     if (isUserAdded) {
-                        System.out.println("User is added.");
+                        System.out.println("New user is added.");
                         user = new UserInfo(0, msg[1], msg[2]);
                         System.out.println(String.format("User (port %s, log %s) logged-in.", socket.getPort(), msg[1]));
                         out.writeUTF("OK");
                         out.flush();
                         File rootNewDir = new File("server/" + msg[1]);
-                        System.out.println("new direction: " + rootNewDir.getAbsolutePath());
                         rootNewDir.mkdirs();
-                        System.out.println("rootNewDir.exists(): " + rootNewDir.exists());
                         break;
                     } else {
                         out.writeUTF("repeat");
