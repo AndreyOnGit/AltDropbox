@@ -1,0 +1,7 @@
+client\FileInfo.class
+server\UserInfo.class
+client\FileInfo$FileType.class
+server\ClientHandler.class
+server\ClientBase.class
+server\ServerApp.class
+server\Server.class
