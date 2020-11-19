@@ -104,7 +104,6 @@ public class Controller implements Initializable {
         }
     }
 
-    // todo надо учесть работу с папками
     public void btnMove(ActionEvent actionEvent) {
         try {
             copy();
@@ -116,7 +115,6 @@ public class Controller implements Initializable {
         btnDelete(actionEvent);
     }
 
-    // todo надо учесть работу с папками
     public void btnDelete(ActionEvent actionEvent) {
         leftPC = (PanelController) leftPanel.getProperties().get("ctrl");
         //удаление у клиента
@@ -141,8 +139,6 @@ public class Controller implements Initializable {
     }
 
     public void btnRename(ActionEvent actionEvent) {
-        //todo сделать выброс сообщения о наличие файла с тем же именем в папке
-        //todo сделать проверку на расширение, переименование без изменения расширения
         try {
             if (leftPC.getSelectedFilename() == null && rightPC.getSelectedFilename() == null) {
                 throwAlert(Alert.AlertType.ERROR, "No file selected.");
@@ -267,7 +263,6 @@ public class Controller implements Initializable {
                 Files.walk(path)
                         .filter(Files::isRegularFile)
                         .forEach(PathArray::makePathArray);
-//                for (Path p : PathArray.arrayList) System.out.println(p);
                 for (int i = 0; i < PathArray.arrayList.size(); i++) {
                     String target = PathArray.arrayList.get(i).toString().replace(leftPC.getCurrentPath(), rightPC.pathField.getText());
                     upload(PathArray.arrayList.get(i).toString(), target);
@@ -279,8 +274,6 @@ public class Controller implements Initializable {
             }
         }
         //копирования с сервера на клиента
-        //todo отработать случай уже существования файла
-        //todo отработать случай копирования директории
         if (rightPC.getSelectedFilename() != null) {
             try {
                 send("download");

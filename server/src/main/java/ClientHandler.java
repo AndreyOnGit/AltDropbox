@@ -14,7 +14,6 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private UserInfo user;
 
-
     public ClientHandler(Socket socket) {
         this.socket = socket;
     }
@@ -50,13 +49,12 @@ public class ClientHandler implements Runnable {
                         String path = in.readUTF();
                         File file = new File(path);
                         File folder = new File(file.getParent());
-                        if(!folder.exists()){
+                        if (!folder.exists()) {
                             folder.mkdirs();
                         }
                         if (!file.exists()) {
                             file.createNewFile();
-                        } //TODO отработать на случай замены файла
-
+                        }
                         long size = in.readLong();
                         FileOutputStream fos = new FileOutputStream(file);
                         byte[] buffer = new byte[1024];
@@ -97,8 +95,6 @@ public class ClientHandler implements Runnable {
                 if (command.equals("delete")) {
                     String path = in.readUTF();
                     Files.delete(Paths.get(path));
-//                    out.writeUTF("File has been deleted.");
-//                    out.flush();
                 }
 
                 if (command.equals("rename")) {

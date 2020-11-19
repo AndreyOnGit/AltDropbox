@@ -36,8 +36,5 @@ public class SingingInController {
             alert.showAndWait();
             return;
         }
-
-
     }
-
 }

@@ -7,16 +7,8 @@ import javafx.stage.Stage;
 public class ClientApp extends Application {
 
 
-
-
     @Override
     public void start(Stage primaryStage) throws Exception {
-//        Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
-//        primaryStage.setTitle("File Net Manager");
-//        primaryStage.setScene(new Scene(root, 1000, 500));
-//        primaryStage.show();
-
-
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main.fxml"));
         Controller controller = new Controller( primaryStage );

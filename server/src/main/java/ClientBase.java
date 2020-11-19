@@ -10,7 +10,6 @@ public class ClientBase {
 
         /*подключение драйвера*/
        try {
-//            Class.forName("com.mysql.jdbc.Driver");  // This is deprecated
             Class.forName("com.mysql.cj.jdbc.Driver");
             System.out.println("Driver MySQL has been connected.");
         } catch (ClassNotFoundException e) {

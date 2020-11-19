@@ -23,14 +23,12 @@ public class RenamingController {
         if (panel.equals("left")) {
             File file = new File(controller.leftPC.getCurrentPath(), oldName);
             File newFile = new File(controller.leftPC.getCurrentPath(), fieldName.getText());
-            //todo сделать проверку на некорректный ввод
             file.renameTo(newFile);
             controller.leftPC.updateLeftList(Paths.get(controller.leftPC.getCurrentPath()));
         }
         if (panel.equals("right")) {
             controller.send("rename");
             controller.send(controller.rightPC.pathField.getText() + "/" + oldName);
-            //todo сделать проверку на некорректный ввод
             controller.send(fieldName.getText());
             controller.rightPC.updateTable(controller.rightPC.pathField.getText());
         }
