@@ -10,6 +10,13 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -109,22 +116,22 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="463" y="117" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1605618931590" />
-    <state width="1322" height="135" key="GridCell.Tab.0.bottom" timestamp="1605729218524">
+    <state width="1306" height="135" key="GridCell.Tab.0.bottom" timestamp="1605821056614">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1322" height="135" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1605729218524" />
-    <state width="1322" height="135" key="GridCell.Tab.0.center" timestamp="1605729218524">
+    <state width="1306" height="135" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1605821056614" />
+    <state width="1306" height="135" key="GridCell.Tab.0.center" timestamp="1605821056613">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1322" height="135" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1605729218524" />
-    <state width="1322" height="135" key="GridCell.Tab.0.left" timestamp="1605729218524">
+    <state width="1306" height="135" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1605821056613" />
+    <state width="1306" height="135" key="GridCell.Tab.0.left" timestamp="1605821056613">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1322" height="135" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1605729218524" />
-    <state width="1322" height="135" key="GridCell.Tab.0.right" timestamp="1605729218524">
+    <state width="1306" height="135" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1605821056613" />
+    <state width="1306" height="135" key="GridCell.Tab.0.right" timestamp="1605821056614">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1322" height="135" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1605729218524" />
+    <state width="1306" height="135" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1605821056614" />
     <state x="323" y="28" key="Maven.ArtifactSearchDialog" timestamp="1605614881606">
       <screen x="0" y="0" width="1366" height="728" />
     </state>

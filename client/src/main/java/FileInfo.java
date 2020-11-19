@@ -58,6 +58,7 @@ public class FileInfo implements Serializable {
     }
 
     public FileInfo(Path path) {
+//        System.out.println("path from FileInfo.class: " + path);
         try {
             this.filename = path.getFileName().toString();
             this.size = Files.size(path);

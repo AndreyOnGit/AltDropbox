@@ -49,15 +49,18 @@ public class ClientHandler implements Runnable {
                     try {
                         String path = in.readUTF();
                         File file = new File(path);
-                        System.out.println("path: " + path);
+                        File folder = new File(file.getParent());
+                        if(!folder.exists()){
+                            folder.mkdirs();
+                        }
                         if (!file.exists()) {
                             file.createNewFile();
                         } //TODO отработать на случай замены файла
+
                         long size = in.readLong();
-                        System.out.println(size);
                         FileOutputStream fos = new FileOutputStream(file);
-                        byte[] buffer = new byte[256];
-                        for (int i = 0; i < (size + 255) / 256; i++) {
+                        byte[] buffer = new byte[1024];
+                        for (int i = 0; i < (size + 1023) / 1024; i++) {
                             int read = in.read(buffer);
                             fos.write(buffer, 0, read);
                             System.out.println("reading...");
@@ -80,7 +83,7 @@ public class ClientHandler implements Runnable {
                         out.writeLong(length);
                         FileInputStream fileBytes = new FileInputStream(file);
                         int read = 0;
-                        byte[] buffer = new byte[256];
+                        byte[] buffer = new byte[1024];
                         while ((read = fileBytes.read(buffer)) != -1) {
                             out.write(buffer, 0, read);
                         }
@@ -94,6 +97,8 @@ public class ClientHandler implements Runnable {
                 if (command.equals("delete")) {
                     String path = in.readUTF();
                     Files.delete(Paths.get(path));
+//                    out.writeUTF("File has been deleted.");
+//                    out.flush();
                 }
 
                 if (command.equals("rename")) {
@@ -115,6 +120,7 @@ public class ClientHandler implements Runnable {
         } catch (SocketException socketException) {
             System.out.println("Client disconnected");
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Something happened in class ClientHandler. " +
                     "Something happened wrong with the threads (port " + socket.getPort() + ").");
         }

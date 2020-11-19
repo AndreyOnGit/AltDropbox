@@ -99,6 +99,7 @@ public class Controller implements Initializable {
         } catch (NullPointerException e) {
             throwAlert(Alert.AlertType.WARNING, "You are not authorized. To work with a " +
                     "file (folder) on the server you need to be authorized.");
+            e.printStackTrace();
             return;
         }
     }
@@ -129,6 +130,7 @@ public class Controller implements Initializable {
             if (rightPC.getSelectedFilename() != null) {
                 send("delete");
                 send(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
+//                get();
                 rightPC.updateTable(rightPC.pathField.getText());
             }
         } catch (NullPointerException e) {
@@ -260,21 +262,17 @@ public class Controller implements Initializable {
         //копирования с клиента на сервер
         if (leftPC.getSelectedFilename() != null) {
             try {
-                send("upload");
-                Path path = Paths.get(rightPC.pathField.getText() + "/" + leftPC.getSelectedFilename());
-                send(path.toString());
-                File file = new File(leftPC.getCurrentPath(), leftPC.getSelectedFilename());
-                long length = file.length();
-                out.writeLong(length);
-                FileInputStream fileBytes = new FileInputStream(file);
-                int read = 0;
-                byte[] buffer = new byte[256];
-                while ((read = fileBytes.read(buffer)) != -1) {
-                    out.write(buffer, 0, read);
+                PathArray.arrayList.clear();
+                Path path = Paths.get(leftPC.getCurrentPath() + "/" + leftPC.getSelectedFilename());
+                Files.walk(path)
+                        .filter(Files::isRegularFile)
+                        .forEach(PathArray::makePathArray);
+//                for (Path p : PathArray.arrayList) System.out.println(p);
+                for (int i = 0; i < PathArray.arrayList.size(); i++) {
+                    String target = PathArray.arrayList.get(i).toString().replace(leftPC.getCurrentPath(), rightPC.pathField.getText());
+                    upload(PathArray.arrayList.get(i).toString(), target);
+                    in.readUTF();
                 }
-                fileBytes.close();
-                out.flush();
-                throwAlert(Alert.AlertType.INFORMATION, in.readUTF());
                 rightPC.updateTable(rightPC.pathField.getText());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -293,8 +291,8 @@ public class Controller implements Initializable {
                 }
                 long size = in.readLong();
                 FileOutputStream fos = new FileOutputStream(file);
-                byte[] buffer = new byte[256];
-                for (int i = 0; i < (size + 255) / 256; i++) {
+                byte[] buffer = new byte[1024];
+                for (int i = 0; i < (size + 1023) / 1024; i++) {
                     int read = in.read(buffer);
                     fos.write(buffer, 0, read);
                 }
@@ -304,6 +302,22 @@ public class Controller implements Initializable {
             }
             leftPC.updateLeftList(Paths.get(leftPC.pathField.getText()));
         }
+    }
+
+    public void upload(String source, String target) throws IOException {
+        send("upload");
+        send(target);
+        File file = new File(source);
+        long length = file.length();
+        out.writeLong(length);
+        FileInputStream fileBytes = new FileInputStream(file);
+        int read = 0;
+        byte[] buffer = new byte[1024];
+        while ((read = fileBytes.read(buffer)) != -1) {
+            out.write(buffer, 0, read);
+        }
+        fileBytes.close();
+        out.flush();
     }
 
     public void createFolder(String path) {
@@ -418,7 +432,7 @@ public class Controller implements Initializable {
         }
     }
 
-    public void throwAlert (Alert.AlertType alertType, String content){
+    public void throwAlert(Alert.AlertType alertType, String content) {
         Alert alert = new Alert(alertType, content, ButtonType.OK);
         alert.setHeaderText(null);
         alert.showAndWait();
