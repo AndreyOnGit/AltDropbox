@@ -36,7 +36,6 @@ public class ClientHandler implements Runnable {
                 // получение информации для обновления таблицы
                 if (command.startsWith("info")) {
                     String path = command.replace("info", "");
-                    System.out.println("path :" + path + ".");
                     File file = new File("./" + path);
                     if (file.exists()) {
                         out.writeObject(makeFileInfo(Paths.get(path)));
@@ -124,7 +123,7 @@ public class ClientHandler implements Runnable {
 
     public List<FileInfo> makeFileInfo(Path path) {
         try {
-            return Files.list(path).map(FileInfo::new).collect(Collectors.toList());
+            return Files.list(path).filter(PathArray::exists).map(FileInfo::new).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace(); //TODO отрабоать в клиенте
             List<FileInfo> list = new ArrayList<>();

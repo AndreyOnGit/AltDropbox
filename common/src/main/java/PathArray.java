@@ -1,3 +1,4 @@
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
@@ -11,5 +12,11 @@ public class PathArray {
 
     public void clear(){
         arrayList.clear();
+    }
+
+    public static boolean exists (Path path){
+        File file = new File(String.valueOf(path));
+        if (file.exists()) return true;
+        else return false;
     }
 }

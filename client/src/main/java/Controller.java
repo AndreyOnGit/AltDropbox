@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 public class Controller implements Initializable {
 
@@ -128,7 +129,6 @@ public class Controller implements Initializable {
             if (rightPC.getSelectedFilename() != null) {
                 send("delete");
                 send(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
-//                get();
                 rightPC.updateTable(rightPC.pathField.getText());
             }
         } catch (NullPointerException e) {
@@ -264,6 +264,7 @@ public class Controller implements Initializable {
                         .filter(Files::isRegularFile)
                         .forEach(PathArray::makePathArray);
                 for (int i = 0; i < PathArray.arrayList.size(); i++) {
+
                     String target = PathArray.arrayList.get(i).toString().replace(leftPC.getCurrentPath(), rightPC.pathField.getText());
                     upload(PathArray.arrayList.get(i).toString(), target);
                     in.readUTF();
@@ -276,6 +277,7 @@ public class Controller implements Initializable {
         //копирования с сервера на клиента
         if (rightPC.getSelectedFilename() != null) {
             try {
+
                 send("download");
                 send(rightPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
                 File file = new File(leftPC.pathField.getText() + "/" + rightPC.getSelectedFilename());
@@ -290,6 +292,7 @@ public class Controller implements Initializable {
                     fos.write(buffer, 0, read);
                 }
                 fos.close();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -419,7 +422,6 @@ public class Controller implements Initializable {
             newFolder.setScene(sc);
             newFolder.setTitle("Creating new folder");
             newFolder.show();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
